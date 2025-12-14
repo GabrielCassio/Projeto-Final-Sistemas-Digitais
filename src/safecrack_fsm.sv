@@ -143,9 +143,9 @@ module safecrack_fsm (
     // output logic
     always_comb begin
         // Visual indication by the first three leds in the FPGA
-        leds_green[0] = (state == S0);
-        leds_green[1] = (state == S1 & next_state != S0);
-        leds_green[2] = (state == S2 & next_state != S0);
+        leds_green[0] = (|state_t);
+        leds_green[1] = (state == S1 | state == S2 | state == UNLOCKED_ON);
+        leds_green[2] = (state == S2 | state == UNLOCKED_ON);
 
         // Switch to on the remaing leds
         leds_green[3] = (state == UNLOCKED_ON)
