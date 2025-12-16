@@ -69,10 +69,9 @@ module safecrack_fsm (
     logic [2:0] btn_prev, btn_edge, btn_pos;
     logic       any_btn_edge;
 
-    //localparam int BLINK_DELAY = 50_000_000;    // 1 second delay at 50MHz clock
     localparam int INCORRET_DIGIT_DELAY = 150_000_000;    // 3 second delay at 50MHz clock
-    localparam int UNLOCKED_DELAY = 500_000_000;    // 5 second delay at 50MHz clock
-    logic [$clog2(BLINK_DELAY)-1:0] delay_cnt, next_delay_cnt;
+    localparam int UNLOCKED_DELAY = 200_000_000;    // 5 second delay at 50MHz clock
+    logic [$clog2(UNLOCKED_DELAY)-1:0] delay_cnt, next_delay_cnt;
      
      always_comb begin
         btn_pos	= ~btn; // invert buttons to active high
@@ -142,21 +141,23 @@ module safecrack_fsm (
 
     // output logic
     always_comb begin
-        // Visual indication by the first three leds in the FPGA
-        leds_green[0] = (|state_t);
-        leds_green[1] = (state == S1 | state == S2 | state == UNLOCKED_ON);
-        leds_green[2] = (state == S2 | state == UNLOCKED_ON);
-
-        // Switch to on the remaing leds
-        leds_green[3] = (state == UNLOCKED_ON)
-        leds_green[4] = (state == UNLOCKED_ON)
-        leds_green[5] = (state == UNLOCKED_ON)
-        leds_green[6] = (state == UNLOCKED_ON)
-
-        // Error led indicator
-        leds_red[0] = (state == INCORRECT_DIGIT_STATE)
-
-        unlocked = (state == UNLOCKED_ON);
+        unique case (state)
+            S0: begin
+                leds_red <= 18'b000000000000000000'
+                leds_green <= 8'b00000001'
+            end
+            S1: begin
+                leds_green <= 8'b00000011'
+            end
+            S2: begin
+                leds_green <= 8'b00000111'
+            end
+            UNLOCKED_ON: begin
+                leds_green <= 8'b11111111'
+            end
+            INCORRECT_DIGIT_STATE: begin
+                leds_red <= 18'b000000000000000001'
+            end
+        endcase
     end
-
 endmodule
